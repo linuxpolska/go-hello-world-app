@@ -35,7 +35,7 @@ jobs:
       - uses: imranismail/setup-kustomize@v1
         with:
           kustomize-version: "4.0.4"
-      - run: git clone https://${REPO_TOKEN}github.com/linuxpolska/k8s-infra-and-objects.git
+      - run: git clone https://${REPO_TOKEN}@github.com/linuxpolska/k8s-infra-and-objects.git
         env:
           REPO_TOKEN: ${{secrets.REPO_TOKEN}}
       - run: cd k8s-infra-and-objects/kustomize/dev && kustomize edit set image hello=gcr.io/${{ secrets.PROJECT_ID }}/$APP_NAME:${GITHUB_SHA}
