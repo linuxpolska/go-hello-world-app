@@ -41,5 +41,5 @@ jobs:
       - run: cd k8s-infra-and-objects/kustomize/dev && kustomize edit set image hello=gcr.io/${{ secrets.PROJECT_ID }}/$APP_NAME:${GITHUB_SHA}
       - run: cd k8s-infra-and-objects/kustomize/prod && kustomize edit set image hello=gcr.io/${{ secrets.PROJECT_ID }}/$APP_NAME:${GITHUB_SHA}
       - run: git add .
-      - run: git commit -m "Set `hello` image tag to `${GITHUB_SHA}`"
+      - run: git commit -m "Set hello image tag to ${GITHUB_SHA}"
       - run: git push origin main
