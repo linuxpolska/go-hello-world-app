@@ -1,0 +1,45 @@
+---
+name: Deploy app to K8S pipeline
+
+on: [push]
+
+env:
+  APP_NAME: "go-hello-world"
+
+jobs:
+
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+      - run: gcloud info
+      - name: auth to CR
+        run: gcloud auth configure-docker
+      - name: build app
+        run: docker build -f $(pwd)/Dockerfile $(pwd) -t $APP_NAME
+      - name: tag app
+        run: docker tag $APP_NAME gcr.io/${{ secrets.PROJECT_ID }}/$APP_NAME:${{ github.sha }}
+      - name: push image
+        run: docker push gcr.io/${{ secrets.PROJECT_ID }}/$APP_NAME:${{ github.sha }}
+
+  deploy-to-k8s-manifests:
+    needs: build-image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: imranismail/setup-kustomize@v1
+        with:
+          kustomize-version: "4.0.4"
+      - run: git clone https://${REPO_TOKEN}github.com/linuxpolska/k8s-infra-and-objects.git .
+        env:
+          REPO_TOKEN: ${{secrets.REPO_TOKEN}}
+      - run: cd kustomize/dev && kustomize edit set image hello=gcr.io/${{ secrets.PROJECT_ID }}/$APP_NAME:${GITHUB_SHA}
+      - run: cd ../prod && kustomize edit set image hello=gcr.io/${{ secrets.PROJECT_ID }}/$APP_NAME:${GITHUB_SHA}
+      - run: git add .
+      - run: git commit -m "Set `hello` image tag to `${GITHUB_SHA}`"
+      - run: git push origin main
