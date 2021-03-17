@@ -1,7 +1,7 @@
 FROM golang:alpine as builder
 WORKDIR /build/app
 
-COPY server.go ./
+COPY server.go go.mod ./
 
 # Build app
 RUN go build -o myapp
