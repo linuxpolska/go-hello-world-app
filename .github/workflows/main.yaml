@@ -40,6 +40,8 @@ jobs:
           REPO_TOKEN: ${{secrets.REPO_TOKEN}}
       - run: cd k8s-infra-and-objects/kustomize/dev && kustomize edit set image hello=gcr.io/${{ secrets.PROJECT_ID }}/$APP_NAME:${GITHUB_SHA}
       - run: cd k8s-infra-and-objects/kustomize/prod && kustomize edit set image hello=gcr.io/${{ secrets.PROJECT_ID }}/$APP_NAME:${GITHUB_SHA}
+      - run: git config --global user.email "3sky@protonmail.com"
+      - run: git config --global user.name "3sky"
       - run: git add .
       - run: git commit -m "Set hello image tag to ${GITHUB_SHA}"
       - run: git push origin main
