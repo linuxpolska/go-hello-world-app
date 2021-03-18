@@ -18,7 +18,7 @@ p {text-align: center;}
   display: block;
   margin-left: auto;
   margin-right: auto;
-  width: 50%;
+  width: 51%;
 }
 body {background-color: green;}
 </style>
