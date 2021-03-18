@@ -1,5 +1,5 @@
 ---
-name: Deploy app to K8S pipeline
+name: Build app and manifests
 
 on: [push]
 
@@ -27,7 +27,7 @@ jobs:
       - name: push image
         run: docker push gcr.io/${{ secrets.PROJECT_ID }}/$APP_NAME:${{ github.sha }}
 
-  deploy-to-k8s-manifests:
+  deploy-k8s-manifests:
     needs: build-image
     runs-on: ubuntu-latest
     steps:
@@ -38,9 +38,9 @@ jobs:
       - run: git clone https://${REPO_TOKEN}@github.com/linuxpolska/k8s-infra-and-objects.git
         env:
           REPO_TOKEN: ${{secrets.REPO_TOKEN}}
-      - run: cd k8s-infra-and-objects && git checkout test
+      - run: cd k8s-infra-and-objects && git checkout dev
       - run: cd k8s-infra-and-objects/kustomize/dev && kustomize edit set image hello=gcr.io/${{ secrets.PROJECT_ID }}/$APP_NAME:${GITHUB_SHA}
       - run: cd k8s-infra-and-objects/kustomize/prod && kustomize edit set image hello=gcr.io/${{ secrets.PROJECT_ID }}/$APP_NAME:${GITHUB_SHA}
       - run: git config --global user.email "3sky@protonmail.com"
       - run: git config --global user.name "3sky"
-      - run: cd k8s-infra-and-objects && git add . && git commit -m "Set hello image tag to ${GITHUB_SHA}" && git push origin test
+      - run: cd k8s-infra-and-objects && git add . && git commit -m "Set hello image tag to ${GITHUB_SHA}" && git push origin dev
